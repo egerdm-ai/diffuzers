@@ -121,25 +121,8 @@ class X2Image:
                 prompt = "turn him into a cyborg"
                 _ = self.pix2pix_pipeline(prompt, image=init_image, num_inference_steps=2)
 
-    def _set_scheduler(self, pipeline_name, scheduler_name):
-        if pipeline_name == "text2img":
-            scheduler_config = self.text2img_pipeline.scheduler.config
-        elif pipeline_name == "img2img":
-            scheduler_config = self.img2img_pipeline.scheduler.config
-        elif pipeline_name == "pix2pix":
-            scheduler_config = self.pix2pix_pipeline.scheduler.config
-        else:
-            raise ValueError(f"Pipeline {pipeline_name} not supported")
 
-        scheduler = self.compatible_schedulers[scheduler_name].from_config(scheduler_config)
-
-        if pipeline_name == "text2img":
-            self.text2img_pipeline.scheduler = scheduler
-        elif pipeline_name == "img2img":
-            self.img2img_pipeline.scheduler = scheduler
-
-    def _pregen(self, pipeline_name, scheduler, num_images, seed):
-        self._set_scheduler(scheduler_name=scheduler, pipeline_name=pipeline_name)
+    def _pregen(self,  num_images, seed):
         if self.device == "mps":
             generator = torch.manual_seed(seed)
             num_images = 1
@@ -148,22 +131,20 @@ class X2Image:
         num_images = int(num_images)
         return generator, num_images
 
-    def _postgen(self, metadata, output_images, pipeline_name):
+    def _postgen(self, metadata, output_images,):
         torch.cuda.empty_cache()
         gc.collect()
         metadata = json.dumps(metadata)
         _metadata = PngInfo()
-        _metadata.add_text(pipeline_name, metadata)
         utils.save_images(
             images=output_images,
-            module=pipeline_name,
             metadata=metadata,
             output_path=self.output_path,
         )
         return output_images, _metadata
 
     def text2img_generate(
-        self, prompt, negative_prompt, scheduler, image_size, num_images, guidance_scale, steps, seed
+        self, prompt, negative_prompt, image_size, num_images, guidance_scale, steps, seed
     ):
 
         if seed == -1:
@@ -172,7 +153,6 @@ class X2Image:
 
         generator, num_images = self._pregen(
             pipeline_name="text2img",
-            scheduler=scheduler,
             num_images=num_images,
             seed=seed,
         )
@@ -189,7 +169,6 @@ class X2Image:
         metadata = {
             "prompt": prompt,
             "negative_prompt": negative_prompt,
-            "scheduler": scheduler,
             "image_size": image_size,
             "num_images": num_images,
             "guidance_scale": guidance_scale,
