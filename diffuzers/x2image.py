@@ -74,7 +74,7 @@ class X2Image:
             torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
         )
         self.pipeline.to(self.device)
-        self.pipeline.load_lora_weights("egerdm/sdlx_dreambooth_ute", weight_name="pytorch_lora_weights.safetensors")
+        self.pipeline.load_lora_weights("egerdm/sdlx_dreambooth_man", weight_name="pytorch_lora_weights.safetensors")
 
         if len(self.embeddings_url) > 0 and len(self.token_identifier) > 0:
             # download the embeddings

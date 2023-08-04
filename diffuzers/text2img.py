@@ -27,7 +27,7 @@ class Text2Image:
             torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
         )
         self.pipeline.to(self.device)
-        self.pipeline.load_lora_weights("egerdm/sdlx_dreambooth_ute", weight_name="pytorch_lora_weights.safetensors")
+        self.pipeline.load_lora_weights("egerdm/sdlx_dreambooth_man", weight_name="pytorch_lora_weights.safetensors")
 
     def _set_scheduler(self, scheduler_name):
         scheduler = self.compatible_schedulers[scheduler_name].from_config(self.scheduler_config)
