@@ -121,8 +121,11 @@ class X2Image:
                 prompt = "turn him into a cyborg"
                 _ = self.pix2pix_pipeline(prompt, image=init_image, num_inference_steps=2)
 
+    def _set_scheduler(self, pipeline_name, scheduler_name):
+        pipeline_name = pipeline_name
 
-    def _pregen(self,  num_images, seed):
+    def _pregen(self, pipeline_name, scheduler, num_images, seed):
+        self._set_scheduler(scheduler_name=scheduler, pipeline_name=pipeline_name)
         if self.device == "mps":
             generator = torch.manual_seed(seed)
             num_images = 1
@@ -131,13 +134,15 @@ class X2Image:
         num_images = int(num_images)
         return generator, num_images
 
-    def _postgen(self, metadata, output_images,):
+    def _postgen(self, metadata, output_images, pipeline_name):
         torch.cuda.empty_cache()
         gc.collect()
         metadata = json.dumps(metadata)
         _metadata = PngInfo()
+        _metadata.add_text(pipeline_name, metadata)
         utils.save_images(
             images=output_images,
+            module=pipeline_name,
             metadata=metadata,
             output_path=self.output_path,
         )
