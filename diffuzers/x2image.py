@@ -76,8 +76,6 @@ class X2Image:
         self.pipeline.to(self.device)
         self.pipeline.load_lora_weights("egerdm/sdlx_dreambooth_ute", weight_name="pytorch_lora_weights.safetensors")
 
-        self.text2img_pipeline.to(self.device)
-
         if len(self.embeddings_url) > 0 and len(self.token_identifier) > 0:
             # download the embeddings
             self.embeddings_path = utils.download_file(self.embeddings_url)
