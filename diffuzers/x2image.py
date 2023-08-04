@@ -69,22 +69,12 @@ class X2Image:
         return f"X2Image(model={self.model}, pipeline={self.custom_pipeline})"
 
     def __post_init__(self):
-        self.text2img_pipeline = DiffusionPipeline.from_pretrained(
+        self.pipeline = DiffusionPipeline.from_pretrained(
             self.model,
             torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
-            custom_pipeline=self.custom_pipeline,
-            use_auth_token=utils.use_auth_token(),
         )
-        components = self.text2img_pipeline.components
-        self.pix2pix_pipeline = None
-        if isinstance(self.text2img_pipeline, StableDiffusionPipeline):
-            self.img2img_pipeline = StableDiffusionImg2ImgPipeline(**components)
-            self.pix2pix_pipeline = StableDiffusionInstructPix2PixPipeline(**components)
-        elif isinstance(self.text2img_pipeline, AltDiffusionPipeline):
-            self.img2img_pipeline = AltDiffusionImg2ImgPipeline(**components)
-        else:
-            self.img2img_pipeline = None
-            logger.error("Model type not supported, img2img pipeline not created")
+        self.pipeline.to(self.device)
+        self.pipeline.load_lora_weights("egerdm/sdlx_dreambooth_ute", weight_name="pytorch_lora_weights.safetensors")
 
         self.text2img_pipeline.to(self.device)
 
