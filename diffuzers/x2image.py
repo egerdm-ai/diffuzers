@@ -147,6 +147,7 @@ class X2Image:
         generator, num_images = self._pregen(
             pipeline_name="text2img",
             num_images=num_images,
+            scheduler="",
             seed=seed,
         )
         output_images = self.text2img_pipeline(
