@@ -27,16 +27,7 @@ class Text2Image:
             torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
         )
         self.pipeline.to(self.device)
-        self.pipeline.safety_checker = utils.no_safety_checker
-        self._compatible_schedulers = self.pipeline.scheduler.compatibles
-        self.scheduler_config = self.pipeline.scheduler.config
-        self.compatible_schedulers = {scheduler.__name__: scheduler for scheduler in self._compatible_schedulers}
-
-        if self.device == "mps":
-            self.pipeline.enable_attention_slicing()
-            # warmup
-            prompt = "a photo of an astronaut riding a horse on mars"
-            _ = self.pipeline(prompt, num_inference_steps=2)
+        self.pipeline.load_lora_weights("egerdm/sdlx_dreambooth_ute", weight_name="pytorch_lora_weights.safetensors")
 
     def _set_scheduler(self, scheduler_name):
         scheduler = self.compatible_schedulers[scheduler_name].from_config(self.scheduler_config)
@@ -50,6 +41,7 @@ class Text2Image:
             num_images = 1
         else:
             generator = torch.Generator(device=self.device).manual_seed(seed)
+    
         num_images = int(num_images)
         output_images = self.pipeline(
             prompt,

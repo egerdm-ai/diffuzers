@@ -75,7 +75,6 @@ async def text2img(params: Text2ImgParams) -> ImgResponse:
         steps=params.steps,
         seed=params.seed,
         negative_prompt=params.negative_prompt,
-        scheduler=params.scheduler,
         image_size=(params.image_height, params.image_width),
         guidance_scale=params.guidance_scale,
     )
