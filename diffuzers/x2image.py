@@ -150,7 +150,7 @@ class X2Image:
             scheduler="",
             seed=seed,
         )
-        output_images = self.text2img_pipeline(
+        output_images = self.pipeline(
             prompt,
             negative_prompt=negative_prompt,
             width=image_size[1],
