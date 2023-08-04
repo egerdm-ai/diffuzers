@@ -87,16 +87,6 @@ class X2Image:
             logger.error("Model type not supported, img2img pipeline not created")
 
         self.text2img_pipeline.to(self.device)
-        self.text2img_pipeline.safety_checker = utils.no_safety_checker
-        self.img2img_pipeline.to(self.device)
-        self.img2img_pipeline.safety_checker = utils.no_safety_checker
-        if self.pix2pix_pipeline is not None:
-            self.pix2pix_pipeline.to(self.device)
-            self.pix2pix_pipeline.safety_checker = utils.no_safety_checker
-
-        self.compatible_schedulers = {
-            scheduler.__name__: scheduler for scheduler in self.text2img_pipeline.scheduler.compatibles
-        }
 
         if len(self.embeddings_url) > 0 and len(self.token_identifier) > 0:
             # download the embeddings
